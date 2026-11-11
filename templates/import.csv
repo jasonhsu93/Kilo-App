@@ -1,0 +1,5 @@
+row_type,external_id,customer_external_id,name,phone,email,notes,coach_id,quantity,remaining,unit_price,purchased_at,package_external_id,amount,method,paid_at
+customer,customer-001,,範例學員,,,,REPLACE_WITH_COACH_UUID,,,,,,,,
+opening,opening-001,customer-001,,,,,REPLACE_WITH_COACH_UUID,8,8,,,,,,
+package,package-002,customer-001,,,,,REPLACE_WITH_COACH_UUID,10,7,175000,2026-10-01T09:00:00+08:00,,,,
+payment,payment-002,,,,,,,,,,,package-002,1750000,cash,2026-10-01T09:00:00+08:00

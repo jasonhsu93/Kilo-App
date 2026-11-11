@@ -1,0 +1,36 @@
+name: Verify gym workflows
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:integration
+      - run: npm run db:local -- --runtime native --exclude realtime,storage,functions,studio,analytics,pooler --eager
+      - run: npm run db:env
+      - name: Generate development-only seed password
+        run: |
+          node --input-type=module -e 'import {randomBytes} from "node:crypto";import {appendFileSync} from "node:fs";const value=randomBytes(24).toString("base64url");console.log("::add-mask::"+value);appendFileSync(process.env.GITHUB_ENV,"DEV_SEED_PASSWORD="+value+"\n");'
+      - run: npm run seed
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failures
+          path: |
+            playwright-report/
+            test-results/
+      - if: always()
+        run: npm run db:stop
